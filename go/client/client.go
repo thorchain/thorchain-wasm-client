@@ -27,10 +27,13 @@ func RegisterFuncs(r *runner.Runner) {
 // 	return
 // }
 
-func decodeAccount(args []js.Value) []interface{} {
+func decodeAccount(args []js.Value) (interface{}, error) {
+	if args[0].Type() != js.TypeString {
+		return nil, fmt.Errorf("Arg 0 must be a string, got type %v", args[0].Type())
+	}
 	strValue := args[0].String()
 
-	return []interface{}{fmt.Sprintf("%v world!", strValue)}
+	return fmt.Sprintf("%v world!", strValue), nil
 
 	// respBytes := json.RawMessage(strValue)
 	// fmt.Printf("strValue: %+v\n, respBytes: %+v\n", strValue, respBytes)

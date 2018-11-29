@@ -5,12 +5,19 @@ declare var Go: any
 async function main () {
     const { client, runner } = await ThorchainWasmClient(new Go())
 
-    // tslint:disable-next-line:no-console
     console.log('client ready')
 
+    // succeeding communication
     const result = await client.decodeAccount("Hellooo")
-
     console.log('got result ', result)
+
+    // failing communication
+    try {
+        const result = await client.decodeAccount()
+        console.log('should have failed but did not, got result ', result)
+    } catch (e) {
+        console.log('failed successfully with err ', e)
+    }
 
     // // test data
     // const from = '0117C8E80DB31A2F594E17943CC636AE90B21C92'
