@@ -8,7 +8,7 @@ import (
 func main() {
 	c := make(chan struct{}, 0)
 
-	r := runner.NewRunner("thorchain_wasm_client")
+	r := runner.NewRunner(namespace)
 	client.RegisterFuncs(&r)
 
 	println("thorchain_wasm_client initialized")
