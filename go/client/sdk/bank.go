@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 )
 
-type AccAddress []byte
-
 // MsgSend - high level transaction of the coin module
 type MsgSend struct {
 	Inputs  []Input  `json:"inputs"`

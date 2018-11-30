@@ -121,18 +121,18 @@ func NewStdTx(msgs []Msg, fee StdFee, sigs []StdSignature, memo string) StdTx {
 
 // Build builds a single message to be signed from a TxContext given a set of
 // messages. It returns an error if a fee is supplied but cannot be parsed.
-func Build(chainID string, accountNumber, sequence, gas int64, fee Coin, msgs []Msg, memo string) (StdSignMsg, error) {
-	if chainID == "" {
+func Build(txContext TxContext, msgs []Msg) (StdSignMsg, error) {
+	if txContext.ChainID == "" {
 		return StdSignMsg{}, errors.Errorf("chain ID required but not specified")
 	}
 
 	return StdSignMsg{
-		ChainID:       chainID,
-		AccountNumber: accountNumber,
-		Sequence:      sequence,
-		Fee:           NewStdFee(gas, fee),
+		ChainID:       txContext.ChainID,
+		AccountNumber: txContext.AccountNumber,
+		Sequence:      txContext.Sequence,
+		Fee:           NewStdFee(txContext.Gas, txContext.Fee...),
 		Msgs:          msgs,
-		Memo:          memo,
+		Memo:          txContext.Memo,
 	}, nil
 }
 

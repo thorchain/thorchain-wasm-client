@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"syscall/js"
 
@@ -12,8 +13,9 @@ import (
 )
 
 func RegisterFuncs(r *runner.Runner) {
+	r.HandleFunc("createKey", createKey)
 	r.HandleFunc("helloWorld", helloWorld)
-	r.HandleFunc("signSendTx", signSendTx)
+	r.HandleFunc("signTx", signTx)
 }
 
 func helloWorld(args []js.Value) (interface{}, error) {
@@ -25,18 +27,46 @@ func helloWorld(args []js.Value) (interface{}, error) {
 	return fmt.Sprintf("%v world!", strValue), nil
 }
 
-func signSendTx(args []js.Value) (interface{}, error) {
-	from, err := helpers.ParseString(args, 0)
+type key struct {
+	Priv []byte `json:"priv"`
+	Pub  []byte `json:"pub"`
+	Addr string `json:"addr"`
+}
+
+func createKey(args []js.Value) (interface{}, error) {
+	priv := secp256k1.GenPrivKey()
+	pub := priv.PubKey()
+	addr := sdk.AccAddress(pub.Address())
+
+	bz, err := json.Marshal(key{Priv: priv.Bytes(), Pub: pub.Bytes(), Addr: addr.String()})
 	if err != nil {
 		return nil, err
 	}
 
-	to, err := helpers.ParseString(args, 1)
+	return string(bz), nil
+}
+
+func signTx(args []js.Value) (interface{}, error) {
+	txContextObj, err := helpers.ParseObject(args, 0)
+	if err != nil {
+		return nil, err
+	}
+	txContext, err := helpers.NewTxContextFromJsValue(txContextObj)
 	if err != nil {
 		return nil, err
 	}
 
-	amount, err := helpers.ParseString(args, 2)
+	from, err := helpers.ParseString(args, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	to, err := helpers.ParseString(args, 2)
+	if err != nil {
+		return nil, err
+	}
+
+	amount, err := helpers.ParseString(args, 3)
 	if err != nil {
 		return nil, err
 	}
@@ -45,15 +75,10 @@ func signSendTx(args []js.Value) (interface{}, error) {
 		return nil, err
 	}
 
-	chainID, err := helpers.ParseString(args, 3)
-	if err != nil {
-		return nil, err
-	}
-
 	msg := sdk.MsgSend{[]sdk.Input{sdk.Input{[]byte(from), coins}}, []sdk.Output{sdk.Output{[]byte(to), coins}}}
 
 	// TODO use real values
-	stdSignMsg, err := sdk.Build(chainID, 0, 0, 20000, sdk.Coin{}, []sdk.Msg{msg}, "")
+	stdSignMsg, err := sdk.Build(txContext, []sdk.Msg{msg})
 	if err != nil {
 		return nil, err
 	}

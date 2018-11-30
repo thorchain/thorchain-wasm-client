@@ -19,30 +19,22 @@ async function main () {
         console.log('failed successfully with err ', e)
     }
 
+    // create a new key
+    const key = await client.createKey()
+    console.log("successfully created key", key)
+
     // sign a send tx
-    const from = "abc"
-    const to = "def"
-    const amount = "5RUNE"
-    const chainId = "genesis-beta"
+    const priv_key = "4bD3myAZXUfvoP6cdkfkgwigDzMltovbwcmkNcIxWRiWNYfRcg=="
+    const txContext = { priv_key, account_number: 0, sequence: 0, gas: 20000, chain_id: "test-chain-local" }
+    const from = "t0accaddr1778wxtpj6879e8f5wa0kwh3h553kmydzvm5tth"
+    const to = "t0accaddr17xhjfa7tj6vzmmwdfa0dcphrsudlrsthwmzfck"
+    const amount = "1RUNE"
 
-    const signed = await client.signSendTx(from, to, amount, chainId)
-    console.log('sucessfully signed: ', { from, to, amount, chainId }, signed)
+    const signedTx = await client.signTx(txContext, from, to, amount)
+    console.log('successfully signedTx: ', { from, to, amount }, signedTx)
 
-    // // test data
-    // const from = '0117C8E80DB31A2F594E17943CC636AE90B21C92'
-    // const to = '0117C8E80DB31A2F594E17943CC636AE90B21C92'
-    // const privKey = 'e1b0f79b20c07da0abbc50e486a1b88736b64756a5e131f1b0f85eb05740b28313dba06bb7'
-    // const coins = '5RUNE'
-    // const address = '6163636F756E743A0117C8E80DB31A2F594E17943CC636AE90B21C92'
-    // // window.pk = "eb5ae98721033cb50e53daf17ca94b4a264e3333448dbd3af6d8379419976437e9e39463f0a2"
-    // const account = await client.getAccount(address)
-    // const signedTx = await client.send(from, to, coins, privKey)
-    // const resp = await client.broadcast(signedTx)
-
-    // const pubKey = await client.getPubKeyFromPriv(privKey)
-
-    // // tslint:disable-next-line:no-console
-    // console.log({ account, signedTx, resp, pubKey })
+    const sent = await client.broadcastTx(signedTx)
+    console.log('sent, got feedback', sent)
 }
 
 main()
