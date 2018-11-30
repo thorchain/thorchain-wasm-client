@@ -8,12 +8,12 @@ async function main () {
     console.log('client ready')
 
     // succeeding communication
-    const result = await client.decodeAccount("Hellooo")
+    const result = await client.helloWorld("Hellooo")
     console.log('got result ', result)
 
     // failing communication
     try {
-        const result = await client.decodeAccount()
+        const result = await client.helloWorld()
         console.log('should have failed but did not, got result ', result)
     } catch (e) {
         console.log('failed successfully with err ', e)

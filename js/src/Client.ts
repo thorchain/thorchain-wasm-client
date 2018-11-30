@@ -3,8 +3,12 @@ import { Runner } from './Runner'
 export class Client {
   constructor(private runner: Runner) {}
 
-  public decodeAccount(encoded: string) {
-    return this.runner.invoke<string>('decodeAccount', encoded)
+  public helloWorld(encoded: string) {
+    return this.runner.invoke<string>('helloWorld', encoded)
+  }
+
+  public signSendTx(encoded: string) {
+    return this.runner.invoke<any>('signSendTx', encoded)
   }
 
   // public request = async (method: string, params: object) => {
