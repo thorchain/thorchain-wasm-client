@@ -36,13 +36,13 @@ func MarshalJSONIndent(cdc *Codec, obj interface{}) ([]byte, error) {
 	return out.Bytes(), nil
 }
 
-//__________________________________________________________________
+// //__________________________________________________________________
 
-// generic sealed codec to be used throughout sdk
-var Cdc *Codec
+// // generic sealed codec to be used throughout sdk
+// var Cdc *Codec
 
-func init() {
-	cdc := NewCodec()
-	RegisterCrypto(cdc)
-	Cdc = cdc.Seal()
-}
+// func init() {
+// 	cdc := NewCodec()
+// 	RegisterCrypto(cdc)
+// 	Cdc = cdc.Seal()
+// }

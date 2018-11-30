@@ -7,8 +7,8 @@ export class Client {
     return this.runner.invoke<string>('helloWorld', encoded)
   }
 
-  public signSendTx(encoded: string) {
-    return this.runner.invoke<any>('signSendTx', encoded)
+  public signSendTx(from: string, to: string, amount: string, chainId: string) {
+    return this.runner.invoke<string | null>('signSendTx', from, to, amount, chainId)
   }
 
   // public request = async (method: string, params: object) => {

@@ -19,6 +19,15 @@ async function main () {
         console.log('failed successfully with err ', e)
     }
 
+    // sign a send tx
+    const from = "abc"
+    const to = "def"
+    const amount = "5RUNE"
+    const chainId = "genesis-beta"
+
+    const signed = await client.signSendTx(from, to, amount, chainId)
+    console.log('sucessfully signed: ', { from, to, amount, chainId }, signed)
+
     // // test data
     // const from = '0117C8E80DB31A2F594E17943CC636AE90B21C92'
     // const to = '0117C8E80DB31A2F594E17943CC636AE90B21C92'

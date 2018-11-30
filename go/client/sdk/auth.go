@@ -101,6 +101,24 @@ type StdSignature struct {
 	Sequence      int64            `json:"sequence"`
 }
 
+// StdTx is a standard way to wrap a Msg with Fee and Signatures.
+// NOTE: the first signature is the FeePayer (Signatures must not be nil).
+type StdTx struct {
+	Msgs       []Msg          `json:"msg"`
+	Fee        StdFee         `json:"fee"`
+	Signatures []StdSignature `json:"signatures"`
+	Memo       string         `json:"memo"`
+}
+
+func NewStdTx(msgs []Msg, fee StdFee, sigs []StdSignature, memo string) StdTx {
+	return StdTx{
+		Msgs:       msgs,
+		Fee:        fee,
+		Signatures: sigs,
+		Memo:       memo,
+	}
+}
+
 // Build builds a single message to be signed from a TxContext given a set of
 // messages. It returns an error if a fee is supplied but cannot be parsed.
 func Build(chainID string, accountNumber, sequence, gas int64, fee Coin, msgs []Msg, memo string) (StdSignMsg, error) {
@@ -119,19 +137,19 @@ func Build(chainID string, accountNumber, sequence, gas int64, fee Coin, msgs []
 }
 
 //Sign a transaction with a given private key
-// func PrivSign(priv crypto.PrivKey, msg StdSignMsg) ([]byte, error) {
-// 	sig, err := priv.Sign(msg.Bytes())
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	pubkey := priv.PubKey()
+func PrivSign(cdc *Codec, priv crypto.PrivKey, msg StdSignMsg) ([]byte, error) {
+	sig, err := priv.Sign(msg.Bytes())
+	if err != nil {
+		return nil, err
+	}
+	pubkey := priv.PubKey()
 
-// 	sigs := []StdSignature{{
-// 		AccountNumber: msg.AccountNumber,
-// 		Sequence:      msg.Sequence,
-// 		PubKey:        pubkey,
-// 		Signature:     sig,
-// 	}}
+	sigs := []StdSignature{{
+		AccountNumber: msg.AccountNumber,
+		Sequence:      msg.Sequence,
+		PubKey:        pubkey,
+		Signature:     sig,
+	}}
 
-// 	return txCtx.Codec.MarshalBinary(NewStdTx(msg.Msgs, msg.Fee, sigs, msg.Memo))
-// }
+	return cdc.MarshalBinary(NewStdTx(msg.Msgs, msg.Fee, sigs, msg.Memo))
+}

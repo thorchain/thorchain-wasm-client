@@ -1,9 +1,11 @@
 package client
 
 import (
+	"bytes"
 	"fmt"
 	"syscall/js"
 
+	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"github.com/thorchain/thorchain-wasm-client/go/client/sdk"
 	"github.com/thorchain/thorchain-wasm-client/go/helpers"
 	"github.com/thorchain/thorchain-wasm-client/go/runner"
@@ -56,5 +58,33 @@ func signSendTx(args []js.Value) (interface{}, error) {
 		return nil, err
 	}
 
-	return string(stdSignMsg.Bytes()), nil
+	priv := secp256k1.GenPrivKey()
+
+	// printCdcTypes(cdc)
+
+	//sign
+	txBytes, err := sdk.PrivSign(cdc, priv, stdSignMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	return string(txBytes), nil
+}
+
+//__________________________________________________________________
+
+var cdc *sdk.Codec
+
+func init() {
+	cdc = sdk.NewCodec()
+	cdc.RegisterInterface((*sdk.Msg)(nil), nil)
+	cdc.RegisterConcrete(sdk.StdTx{}, "auth/StdTx", nil)
+	cdc.RegisterConcrete(sdk.MsgSend{}, "cosmos-sdk/Send", nil)
+	sdk.RegisterCrypto(cdc)
+}
+
+func printCdcTypes(cdc *sdk.Codec) {
+	var b bytes.Buffer
+	cdc.PrintTypes(&b)
+	fmt.Println("", b.String())
 }
