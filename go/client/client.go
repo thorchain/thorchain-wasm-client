@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"syscall/js"
@@ -77,11 +78,14 @@ func signTx(args []js.Value) (interface{}, error) {
 
 	msg := sdk.MsgSend{[]sdk.Input{sdk.Input{[]byte(from), coins}}, []sdk.Output{sdk.Output{[]byte(to), coins}}}
 
-	// TODO use real values
+	fmt.Println("msg", msg)
+
 	stdSignMsg, err := sdk.Build(txContext, []sdk.Msg{msg})
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("stdSignMsg", stdSignMsg)
 
 	priv := secp256k1.GenPrivKey()
 
@@ -93,7 +97,9 @@ func signTx(args []js.Value) (interface{}, error) {
 		return nil, err
 	}
 
-	return string(txBytes), nil
+	fmt.Println("txBytes", string(txBytes))
+
+	return base64.StdEncoding.EncodeToString(txBytes), nil
 }
 
 //__________________________________________________________________

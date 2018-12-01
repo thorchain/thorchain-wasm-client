@@ -36,9 +36,14 @@ func NewTxContextFromJsValue(arg js.Value) (sdk.TxContext, error) {
 	if err != nil {
 		return sdk.TxContext{}, err
 	}
-	fee, err := sdk.ParseCoins(feeStr)
-	if err != nil {
-		return sdk.TxContext{}, err
+	var fee sdk.Coins
+	if feeStr != "" {
+		fee, err = sdk.ParseCoins(feeStr)
+		if err != nil {
+			return sdk.TxContext{}, err
+		}
+	} else {
+		fee = sdk.Coins{sdk.NewInt64Coin("RUNE", 0)}
 	}
 
 	chainID, err := ParseStringProp(arg, "chain_id", true)

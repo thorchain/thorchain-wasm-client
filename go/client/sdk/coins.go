@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"regexp"
@@ -19,6 +20,75 @@ type Int struct {
 // NewInt constructs Int from int64
 func NewInt(n int64) Int {
 	return Int{big.NewInt(n)}
+}
+
+// Human readable string
+func (i Int) String() string {
+	return i.i.String()
+}
+
+// MarshalAmino defines custom encoding scheme
+func (i Int) MarshalAmino() (string, error) {
+	if i.i == nil { // Necessary since default Uint initialization has i.i as nil
+		i.i = new(big.Int)
+	}
+	return marshalAmino(i.i)
+}
+
+// UnmarshalAmino defines custom decoding scheme
+func (i *Int) UnmarshalAmino(text string) error {
+	if i.i == nil { // Necessary since default Int initialization has i.i as nil
+		i.i = new(big.Int)
+	}
+	return unmarshalAmino(i.i, text)
+}
+
+// MarshalJSON defines custom encoding scheme
+func (i Int) MarshalJSON() ([]byte, error) {
+	if i.i == nil { // Necessary since default Uint initialization has i.i as nil
+		i.i = new(big.Int)
+	}
+	return marshalJSON(i.i)
+}
+
+// UnmarshalJSON defines custom decoding scheme
+func (i *Int) UnmarshalJSON(bz []byte) error {
+	if i.i == nil { // Necessary since default Int initialization has i.i as nil
+		i.i = new(big.Int)
+	}
+	return unmarshalJSON(i.i, bz)
+}
+
+// MarshalAmino for custom encoding scheme
+func marshalAmino(i *big.Int) (string, error) {
+	bz, err := i.MarshalText()
+	return string(bz), err
+}
+
+// UnmarshalAmino for custom decoding scheme
+func unmarshalAmino(i *big.Int, text string) (err error) {
+	return i.UnmarshalText([]byte(text))
+}
+
+// MarshalJSON for custom encoding scheme
+// Must be encoded as a string for JSON precision
+func marshalJSON(i *big.Int) ([]byte, error) {
+	text, err := i.MarshalText()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(string(text))
+}
+
+// UnmarshalJSON for custom decoding scheme
+// Must be encoded as a string for JSON precision
+func unmarshalJSON(i *big.Int, bz []byte) error {
+	var text string
+	err := json.Unmarshal(bz, &text)
+	if err != nil {
+		return err
+	}
+	return i.UnmarshalText([]byte(text))
 }
 
 // Coin hold some amount of one currency
@@ -40,6 +110,11 @@ func NewInt64Coin(denom string, amount int64) Coin {
 
 // Coins is a set of Coin, one per currency
 type Coins []Coin
+
+// String provides a human-readable representation of a coin
+func (coin Coin) String() string {
+	return fmt.Sprintf("%v%v", coin.Amount, coin.Denom)
+}
 
 // IsValid asserts the Coins are sorted, and don't have 0 amounts
 func (coins Coins) IsValid() bool {

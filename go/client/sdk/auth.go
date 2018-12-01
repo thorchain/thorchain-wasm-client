@@ -136,7 +136,7 @@ func Build(txContext TxContext, msgs []Msg) (StdSignMsg, error) {
 	}, nil
 }
 
-//Sign a transaction with a given private key
+// Sign a transaction with a given private key
 func PrivSign(cdc *Codec, priv crypto.PrivKey, msg StdSignMsg) ([]byte, error) {
 	sig, err := priv.Sign(msg.Bytes())
 	if err != nil {
