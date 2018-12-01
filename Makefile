@@ -1,6 +1,7 @@
 .PHONY: prepare
 prepare:
 	dep ensure
+	cp -R vendor_patches/* vendor
 
 .PHONY: build
 build:

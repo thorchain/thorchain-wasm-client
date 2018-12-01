@@ -8,32 +8,46 @@ async function main () {
     console.log('client ready')
 
     // succeeding communication
-    const result = await client.decodeAccount("Hellooo")
+    const result = await client.helloWorld("Hellooo")
     console.log('got result ', result)
 
     // failing communication
     try {
-        const result = await client.decodeAccount()
+        const result = await client.helloWorld()
         console.log('should have failed but did not, got result ', result)
     } catch (e) {
         console.log('failed successfully with err ', e)
     }
 
-    // // test data
-    // const from = '0117C8E80DB31A2F594E17943CC636AE90B21C92'
-    // const to = '0117C8E80DB31A2F594E17943CC636AE90B21C92'
-    // const privKey = 'e1b0f79b20c07da0abbc50e486a1b88736b64756a5e131f1b0f85eb05740b28313dba06bb7'
-    // const coins = '5RUNE'
-    // const address = '6163636F756E743A0117C8E80DB31A2F594E17943CC636AE90B21C92'
-    // // window.pk = "eb5ae98721033cb50e53daf17ca94b4a264e3333448dbd3af6d8379419976437e9e39463f0a2"
-    // const account = await client.getAccount(address)
-    // const signedTx = await client.send(from, to, coins, privKey)
-    // const resp = await client.broadcast(signedTx)
+    // create a new key
+    const key = await client.createKey()
+    console.log("successfully created key", key)
 
-    // const pubKey = await client.getPubKeyFromPriv(privKey)
+    // get account
+    const from = "t0accaddr1778wxtpj6879e8f5wa0kwh3h553kmydzvm5tth"
+    const account = await fetch(`http://localhost:1317/accounts/${from}`).then(res => res.json())
+    console.log('account', account)
 
-    // // tslint:disable-next-line:no-console
-    // console.log({ account, signedTx, resp, pubKey })
+
+    // sign a send tx
+    const priv_key = "4bD3myAZXUfvoP6cdkfkgwigDzMltovbwcmkNcIxWRiWNYfRcg=="
+    const accountNumber = parseInt(account.value.account_number, 10)
+    const sequence = parseInt(account.value.sequence, 10)
+    const txContext = {
+        priv_key,
+        account_number: accountNumber,
+        sequence,
+        gas: 20000,
+        chain_id: "test-chain-local"
+    }
+    const to = "t0accaddr17xhjfa7tj6vzmmwdfa0dcphrsudlrsthwmzfck"
+    const amount = "1RUNE"
+
+    const signedTx = await client.signTx(txContext, from, to, amount)
+    console.log('successfully signedTx: ', { from, to, amount }, signedTx)
+
+    const sent = await client.broadcastTx(signedTx)
+    console.log('sent, got feedback', sent)
 }
 
 main()
