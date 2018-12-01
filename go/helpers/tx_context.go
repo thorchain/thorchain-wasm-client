@@ -1,9 +1,10 @@
 package helpers
 
 import (
+	"encoding/base64"
 	"syscall/js"
 
-	"github.com/tendermint/tendermint/crypto/secp256k1"
+	cryptoAmino "github.com/tendermint/tendermint/crypto/encoding/amino"
 	"github.com/thorchain/thorchain-wasm-client/go/client/sdk"
 )
 
@@ -13,9 +14,16 @@ func NewTxContextFromJsValue(arg js.Value) (sdk.TxContext, error) {
 	if err != nil {
 		return sdk.TxContext{}, err
 	}
-	var privKeyBytes [32]byte
-	copy(privKeyBytes[:], privKeyStr)
-	privKey := secp256k1.PrivKeySecp256k1(privKeyBytes)
+
+	privKeyBytes, err := base64.StdEncoding.DecodeString(privKeyStr)
+	if err != nil {
+		return sdk.TxContext{}, err
+	}
+
+	privKey, err := cryptoAmino.PrivKeyFromBytes(privKeyBytes)
+	if err != nil {
+		return sdk.TxContext{}, err
+	}
 
 	accountNumber, err := ParseIntProp(arg, "account_number", true)
 	if err != nil {

@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -40,6 +41,38 @@ func AccAddressFromBech32(address string) (addr AccAddress, err error) {
 	return AccAddress(bz), nil
 }
 
+// Marshal needed for protobuf compatibility
+func (bz AccAddress) Marshal() ([]byte, error) {
+	return bz, nil
+}
+
+// Unmarshal needed for protobuf compatibility
+func (bz *AccAddress) Unmarshal(data []byte) error {
+	*bz = data
+	return nil
+}
+
+// Marshals to JSON using Bech32
+func (bz AccAddress) MarshalJSON() ([]byte, error) {
+	return json.Marshal(bz.String())
+}
+
+// Unmarshals from JSON assuming Bech32 encoding
+func (bz *AccAddress) UnmarshalJSON(data []byte) error {
+	var s string
+	err := json.Unmarshal(data, &s)
+	if err != nil {
+		return nil
+	}
+
+	bz2, err := AccAddressFromBech32(s)
+	if err != nil {
+		return err
+	}
+	*bz = bz2
+	return nil
+}
+
 // Allow it to fulfill various interfaces in light-client, etc...
 func (bz AccAddress) Bytes() []byte {
 	return bz
@@ -51,6 +84,18 @@ func (bz AccAddress) String() string {
 		panic(err)
 	}
 	return bech32Addr
+}
+
+// For Printf / Sprintf, returns bech32 when using %s
+func (bz AccAddress) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 's':
+		s.Write([]byte(fmt.Sprintf("%s", bz.String())))
+	case 'p':
+		s.Write([]byte(fmt.Sprintf("%p", bz)))
+	default:
+		s.Write([]byte(fmt.Sprintf("%X", []byte(bz))))
+	}
 }
 
 // decode a bytestring from a bech32-encoded string

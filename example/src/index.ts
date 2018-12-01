@@ -23,10 +23,23 @@ async function main () {
     const key = await client.createKey()
     console.log("successfully created key", key)
 
+    // get account
+    const from = "t0accaddr1778wxtpj6879e8f5wa0kwh3h553kmydzvm5tth"
+    const account = await fetch(`http://localhost:1317/accounts/${from}`).then(res => res.json())
+    console.log('account', account)
+
+
     // sign a send tx
     const priv_key = "4bD3myAZXUfvoP6cdkfkgwigDzMltovbwcmkNcIxWRiWNYfRcg=="
-    const txContext = { priv_key, account_number: 0, sequence: 0, gas: 20000, chain_id: "test-chain-local" }
-    const from = "t0accaddr1778wxtpj6879e8f5wa0kwh3h553kmydzvm5tth"
+    const accountNumber = parseInt(account.value.account_number, 10)
+    const sequence = parseInt(account.value.sequence, 10)
+    const txContext = {
+        priv_key,
+        account_number: accountNumber,
+        sequence,
+        gas: 20000,
+        chain_id: "test-chain-local"
+    }
     const to = "t0accaddr17xhjfa7tj6vzmmwdfa0dcphrsudlrsthwmzfck"
     const amount = "1RUNE"
 

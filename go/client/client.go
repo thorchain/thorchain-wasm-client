@@ -47,6 +47,37 @@ func createKey(args []js.Value) (interface{}, error) {
 	return string(bz), nil
 }
 
+// TODO may implement decoding in this module to no longer require LCD to run
+// func decodeAccount(args []js.Value) {
+// 	respStr := helpers.ParseString(args, 0)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	// strValue := args[0].String()
+// 	respBytes := json.RawMessage(respStr)
+// 	fmt.Printf("respStr: %+v\n, respBytes: %+v\n", respStr, respBytes)
+
+// 	resp := &types.ResultABCIQuery{}
+
+// 	util.UnmarshalResponseBytes(b.cdc, respBytes, resp)
+// 	fmt.Printf("resp.Value: %+v\n", resp.Response.Value)
+
+// 	acc, err := util.DecodeAccount(b.cdc, resp.Response.Value)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	fmt.Printf("account: %+v\n", acc)
+
+// 	// return acc
+
+// 	// jsonValue, err := b.cdc.MarshalJSON(acc)
+// 	// fmt.Printf("jsonValue: %+v\n", jsonValue)
+
+// 	// jsCallback := b.getJSCallback(args)
+// 	// jsCallback.Invoke(string(jsonValue))
+// }
+
 func signTx(args []js.Value) (interface{}, error) {
 	txContextObj, err := helpers.ParseObject(args, 0)
 	if err != nil {
@@ -57,12 +88,20 @@ func signTx(args []js.Value) (interface{}, error) {
 		return nil, err
 	}
 
-	from, err := helpers.ParseString(args, 1)
+	fromStr, err := helpers.ParseString(args, 1)
+	if err != nil {
+		return nil, err
+	}
+	from, err := sdk.AccAddressFromBech32(fromStr)
 	if err != nil {
 		return nil, err
 	}
 
-	to, err := helpers.ParseString(args, 2)
+	toStr, err := helpers.ParseString(args, 2)
+	if err != nil {
+		return nil, err
+	}
+	to, err := sdk.AccAddressFromBech32(toStr)
 	if err != nil {
 		return nil, err
 	}
@@ -78,26 +117,16 @@ func signTx(args []js.Value) (interface{}, error) {
 
 	msg := sdk.MsgSend{[]sdk.Input{sdk.Input{[]byte(from), coins}}, []sdk.Output{sdk.Output{[]byte(to), coins}}}
 
-	fmt.Println("msg", msg)
-
 	stdSignMsg, err := sdk.Build(txContext, []sdk.Msg{msg})
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("stdSignMsg", stdSignMsg)
-
-	priv := secp256k1.GenPrivKey()
-
-	// printCdcTypes(cdc)
-
 	//sign
-	txBytes, err := sdk.PrivSign(cdc, priv, stdSignMsg)
+	txBytes, err := sdk.PrivSign(cdc, txContext.PrivKey, stdSignMsg)
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println("txBytes", string(txBytes))
 
 	return base64.StdEncoding.EncodeToString(txBytes), nil
 }
