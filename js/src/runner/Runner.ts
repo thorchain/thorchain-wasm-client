@@ -1,5 +1,5 @@
-import { config } from './config'
-import { IRuntime } from './interfaces/IRuntime'
+import { config } from '../config'
+import { IRuntime } from '../interfaces/IRuntime'
 
 export class Runner {
   private instance: WebAssembly.Instance
@@ -16,7 +16,6 @@ export class Runner {
     return new Promise((resolve, reject) => {
       global[config.namespace][funcName](...args, (err: string, data: T) => {
         if (err) {
-          console.log('got err', err)
           reject(err)
         } else {
           resolve(data)
