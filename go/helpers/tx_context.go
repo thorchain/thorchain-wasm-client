@@ -5,7 +5,7 @@ import (
 	"syscall/js"
 
 	cryptoAmino "github.com/tendermint/tendermint/crypto/encoding/amino"
-	"github.com/thorchain/thorchain-wasm-client/go/client/sdk"
+	sdk "github.com/thorchain/thorchain-wasm-client/go/client/cosmos-sdk"
 )
 
 // NewTxContextFromJsValue returns a new initialized TxContext with parameters from the js.Value

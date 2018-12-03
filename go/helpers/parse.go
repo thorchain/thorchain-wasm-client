@@ -17,6 +17,18 @@ func ParseString(args []js.Value, i int) (string, error) {
 	return args[i].String(), nil
 }
 
+func ParseInt(args []js.Value, i int) (int, error) {
+	if i < 0 || i >= len(args) {
+		return 0, fmt.Errorf("Arg %v required, but not present", i)
+	}
+
+	if args[i].Type() != js.TypeNumber {
+		return 0, fmt.Errorf("Arg %v must be an int, but got type '%v' instead", i, args[i].Type())
+	}
+
+	return args[i].Int(), nil
+}
+
 func ParseObject(args []js.Value, i int) (js.Value, error) {
 	if i < 0 || i >= len(args) {
 		return js.Value{}, fmt.Errorf("Arg %v required, but not present", i)
