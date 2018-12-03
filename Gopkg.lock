@@ -10,6 +10,13 @@
   revision = "7d2daa5bfef28c5e282571bc06416516936115ee"
 
 [[projects]]
+  digest = "1:386de157f7d19259a7f9c81f26ce011223ce0f090353c1152ffdf730d7d10ac2"
+  name = "github.com/btcsuite/btcutil"
+  packages = ["bech32"]
+  pruneopts = "UT"
+  revision = "d4cc87b860166d00d6b5b9e0d3b3d71d6088d4d4"
+
+[[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -102,7 +109,7 @@
   version = "0.10.1"
 
 [[projects]]
-  digest = "1:dbf6f9c76a373de0b3cc133acff671dae5a00640e3fadfafd432209c24cc69bb"
+  digest = "1:d2498d1fc967a233df8bfc74527e09ee59b582b2927367c9e6330983b8273b81"
   name = "github.com/tendermint/tendermint"
   packages = [
     "crypto",
@@ -110,6 +117,7 @@
     "crypto/encoding/amino",
     "crypto/secp256k1",
     "crypto/tmhash",
+    "libs/bech32",
     "libs/common",
     "libs/log",
   ]
@@ -134,6 +142,7 @@
     "github.com/tendermint/tendermint/crypto",
     "github.com/tendermint/tendermint/crypto/encoding/amino",
     "github.com/tendermint/tendermint/crypto/secp256k1",
+    "github.com/tendermint/tendermint/libs/bech32",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
