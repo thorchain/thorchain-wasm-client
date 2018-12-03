@@ -34,6 +34,7 @@ file size is a secondary concern since
 6. Add code to the example in `example/src/index.ts`
 7. Use the link that we created above: `cd example && yarn link "thorchain-wasm-client" && cd ..`
 8. Run the example: `cd example && yarn start && cd ..`
+9. Publish the module: `cd js && yarn publish --access public && cd ..`
 
 <sup>1</sup>This installs dependencies and patches the vendor directory with workarounds for missing WASM support.
 Some dependencies do not support WASM yet and produce compilation errors. The vendor_patches folder contains stubs
