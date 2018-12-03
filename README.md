@@ -4,7 +4,7 @@ Client to communicate with thorchaind from the browser. The code is written in G
 The reason for this package is the lack of a stable amino encoding library in JavaScript. The biggest drawback to this
 approach is the file size of the WASM module, which is >10 MB uncompressed, after manual tree shaking (copying relevant
 code into `./go/client/cosmos-sdk` and `./go/client/thorchain` instead of importing the whole modules). For now, this
-file size is a secondary concern since
+file size is a secondary concern since the module will be loaded asynchronously in the browser – until a user wants to sign a tx, it should be loaded. It is planned to replace the WASM module with a JS implemtation in the near future.
 
 ## Usage in the browser
 
