@@ -8,6 +8,7 @@ import (
 	"syscall/js"
 	"time"
 
+	cryptoAmino "github.com/tendermint/tendermint/crypto/encoding/amino"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 	sdk "github.com/thorchain/thorchain-wasm-client/go/client/cosmos-sdk"
 	"github.com/thorchain/thorchain-wasm-client/go/client/thorchain/clp"
@@ -18,6 +19,7 @@ import (
 
 func RegisterFuncs(r *runner.Runner) {
 	r.HandleFunc("createKey", createKey)
+	r.HandleFunc("getPubAndAddrFromPrivKey", getPubAndAddrFromPrivKey)
 	r.HandleFunc("helloWorld", helloWorld)
 	r.HandleFunc("signSendTx", signSendTx)
 	r.HandleFunc("signClpTradeTx", signClpTradeTx)
@@ -52,36 +54,32 @@ func createKey(args []js.Value) (interface{}, error) {
 	return string(bz), nil
 }
 
-// TODO may implement decoding in this module to no longer require LCD to run
-// func decodeAccount(args []js.Value) {
-// 	respStr := helpers.ParseString(args, 0)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+func getPubAndAddrFromPrivKey(args []js.Value) (interface{}, error) {
+	privStr, err := helpers.ParseString(args, 0)
+	if err != nil {
+		return nil, err
+	}
 
-// 	// strValue := args[0].String()
-// 	respBytes := json.RawMessage(respStr)
-// 	fmt.Printf("respStr: %+v\n, respBytes: %+v\n", respStr, respBytes)
+	privBytes, err := base64.StdEncoding.DecodeString(privStr)
+	if err != nil {
+		return nil, err
+	}
 
-// 	resp := &types.ResultABCIQuery{}
+	priv, err := cryptoAmino.PrivKeyFromBytes(privBytes)
+	if err != nil {
+		return nil, err
+	}
 
-// 	util.UnmarshalResponseBytes(b.cdc, respBytes, resp)
-// 	fmt.Printf("resp.Value: %+v\n", resp.Response.Value)
+	pub := priv.PubKey()
+	addr := sdk.AccAddress(pub.Address())
 
-// 	acc, err := util.DecodeAccount(b.cdc, resp.Response.Value)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	fmt.Printf("account: %+v\n", acc)
+	bz, err := json.Marshal(key{Priv: priv.Bytes(), Pub: pub.Bytes(), Addr: addr.String()})
+	if err != nil {
+		return nil, err
+	}
 
-// 	// return acc
-
-// 	// jsonValue, err := b.cdc.MarshalJSON(acc)
-// 	// fmt.Printf("jsonValue: %+v\n", jsonValue)
-
-// 	// jsCallback := b.getJSCallback(args)
-// 	// jsCallback.Invoke(string(jsonValue))
-// }
+	return string(bz), nil
+}
 
 func signSendTx(args []js.Value) (interface{}, error) {
 	txContextObj, err := helpers.ParseObject(args, 0)

@@ -14,8 +14,14 @@ export class Client {
     return this.runner.invoke<string>('helloWorld', encoded)
   }
 
-  public createKey() {
-    return this.runner.invoke<IKey>('createKey')
+  public async createKey() {
+    const response = await this.runner.invoke<string>('createKey')
+    return JSON.parse(response) as IKey
+  }
+
+  public async getPubAndAddrFromPrivKey(privStr: string) {
+    const response = await this.runner.invoke<string>('getPubAndAddrFromPrivKey', privStr)
+    return JSON.parse(response) as IKey
   }
 
   public signSendTx(txContext: ITxContext, from: string, to: string, amount: string) {
@@ -48,21 +54,4 @@ export class Client {
     const signedTx = await this.signExchangeCreateLimitOrderTx(txContext, sender, kind, amount, price, expiresAt)
     return this.broadcastTx(signedTx)
   }
-
-// TODO may implement decoding in this module to no longer require LCD to run
-  // public async getAccount (address: string) {
-  //   const res = await abciQuery(this.uri, {
-  //     data: Buffer.from(address, 'utf8').toString('hex'),
-  //     height: '0',
-  //     path: '/store/acc/key',
-  //     trusted: true,
-  //   })
-  //   // tslint:disable-next-line:no-console
-  //   console.log('get account res', res)
-  //   // const accountResp = await this.bridge.decodeAccount(JSON.stringify(resp))
-  //   // const account = JSON.parse(accountResp)
-  //   // return account
-  // }
-
-
 }

@@ -21,7 +21,11 @@ async function main () {
 
     // create a new key
     const key = await client.createKey()
-    console.log("successfully created key", key)
+    console.log("successfully created key", key, typeof key)
+
+    // get pub key and address from a private key
+    const pubAndAddr = await client.getPubAndAddrFromPrivKey(key.priv)
+    console.log("successfully got pub and addr from priv", pubAndAddr)
 
     // get account
     const from = "t0accaddr1778wxtpj6879e8f5wa0kwh3h553kmydzvm5tth"
